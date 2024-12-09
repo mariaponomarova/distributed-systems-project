@@ -15,7 +15,7 @@ defmodule Quizzler.MixProject do
   def application do
     [
       extra_applications: [:logger],
-      mod: {TriviaGame.Application, []}
+      mod: {Quizzler.Application, []}
     ]
   end
 
