@@ -369,6 +369,7 @@ defmodule Quizzler do
         score + 1
       else
         IO.puts("Incorrect!")
+        IO.puts("The correct answer is: #{Enum.at(question.options, question.correct_answer - 1)}")
         score
       end
 
