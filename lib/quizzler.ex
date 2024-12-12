@@ -1,9 +1,11 @@
 defmodule Quizzler do
+  # Start the game and print a welcome message
   def play do
     IO.puts("Welcome to Quizzler!")
     play_game()
   end
 
+  # Define the main game loop function
   defp play_game do
     topics = [:music, :science, :math, :sport, :history]
     played_topics = []
@@ -11,15 +13,18 @@ defmodule Quizzler do
     play_game_loop(topics, played_topics, score)
   end
 
+  # Main recursive function for playing the game
   defp play_game_loop(topics, played_topics, score) do
     topic = choose_topic(topics, played_topics)
 
+    # Handle the case when all topics have been played
     case topic do
 
       :no_more_topics ->
         IO.puts("All topics have been played.")
         IO.puts("Game over! Your final score is: #{score}")
 
+      # For each topic, play questions and ask if the user wants to switch topics
       topic ->
         played_topics = [topic | played_topics]
         {new_score, questions_left} = play_questions(topic, score)
@@ -31,6 +36,7 @@ defmodule Quizzler do
         IO.puts("Would you like to switch topics? (yes/no)")
         switch_choice = IO.gets("> ") |> String.trim()
 
+        # Handle user choice to switch topics or quit the game
         case switch_choice do
           "yes" -> play_game_loop(topics, played_topics, new_score)
           "no" -> IO.puts("Game over! Your final score is: #{new_score}")
@@ -40,9 +46,11 @@ defmodule Quizzler do
 
   end
 
+  # Function to choose a new topic based on available topics
   defp choose_topic(topics, played_topics) do
     available_topics = Enum.filter(topics, fn topic -> not Enum.member?(played_topics, topic) end)
 
+    # Handle case when all topics have been played
     if Enum.empty?(available_topics) do
       :no_more_topics
     else
@@ -57,6 +65,7 @@ defmodule Quizzler do
         |> String.trim()
         |> String.downcase()
 
+      # Find the matching topic based on user input
       case Enum.find(available_topics, fn topic ->
              String.downcase(Atom.to_string(topic)) == topic_choice
            end) do
@@ -70,7 +79,9 @@ defmodule Quizzler do
     end
   end
 
+  # Function to play questions for the music category
   defp play_questions(:music, score) do
+    # Define a list of music-related questions
     questions = [
       %{
         question: "Taylor Swift's song 'Cardigan' was released as part of which album?",
@@ -365,6 +376,7 @@ defmodule Quizzler do
     ask_questions(questions, score)
   end
 
+  # Function to ask questions recursively
   defp ask_questions([], score), do: {score, []}
 
   defp ask_questions([question | remaining_questions], score) do
