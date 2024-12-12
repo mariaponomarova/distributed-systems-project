@@ -13,7 +13,9 @@ defmodule Quizzler do
 
   defp play_game_loop(topics, played_topics, score) do
     topic = choose_topic(topics, played_topics)
+
     case topic do
+
       :no_more_topics ->
         IO.puts("All topics have been played.")
         IO.puts("Game over! Your final score is: #{score}")
@@ -35,6 +37,7 @@ defmodule Quizzler do
           _ -> IO.puts("Invalid choice. Exiting game.")
         end
     end
+
   end
 
   defp choose_topic(topics, played_topics) do
@@ -49,11 +52,14 @@ defmodule Quizzler do
         IO.puts("- #{Atom.to_string(topic) |> String.capitalize()}")
       end)
 
-      topic_choice = IO.gets("Choose a topic: ")
-      |> String.trim()
-      |> String.downcase()  # Convert input to lowercase
+      topic_choice =
+        IO.gets("Choose a topic: ")
+        |> String.trim()
+        |> String.downcase()
 
-      case Enum.find(available_topics, fn topic -> String.downcase(Atom.to_string(topic)) == topic_choice end) do
+      case Enum.find(available_topics, fn topic ->
+             String.downcase(Atom.to_string(topic)) == topic_choice
+           end) do
         nil ->
           IO.puts("Invalid topic choice. Please select a valid topic.")
           choose_topic(topics, played_topics)
@@ -73,7 +79,11 @@ defmodule Quizzler do
       },
       %{
         question: "What does the abbreviation of the album 'TTPD' stand for?",
-        options: ["Timeless Tragedy Poem Depot", "The Tortured Poets' Department", "The Twilight Poets' Department"],
+        options: [
+          "Timeless Tragedy Poem Depot",
+          "The Tortured Poets' Department",
+          "The Twilight Poets' Department"
+        ],
         correct_answer: 2
       },
       %{
@@ -87,7 +97,8 @@ defmodule Quizzler do
         correct_answer: 1
       },
       %{
-        question: "Which legendary British band performed their final live concert on the rooftop of Apple Corps in 1969?",
+        question:
+          "Which legendary British band performed their final live concert on the rooftop of Apple Corps in 1969?",
         options: ["The Rolling Stones", "The Beatles", "Queen"],
         correct_answer: 2
       },
@@ -97,7 +108,8 @@ defmodule Quizzler do
         correct_answer: 1
       },
       %{
-        question: "Who performed the famous halftime show at the Super Bowl in 2007 featuring the song 'Purple Rain' in the rain?",
+        question:
+          "Who performed the famous halftime show at the Super Bowl in 2007 featuring the song 'Purple Rain' in the rain?",
         options: ["Beyoncé", "Prince", "Bruno Mars"],
         correct_answer: 2
       },
@@ -178,9 +190,9 @@ defmodule Quizzler do
         correct_answer: 3
       }
     ]
+
     ask_questions(questions, score)
   end
-
 
   defp play_questions(:math, score) do
     questions = [
@@ -235,6 +247,7 @@ defmodule Quizzler do
         correct_answer: 1
       }
     ]
+
     ask_questions(questions, score)
   end
 
@@ -355,24 +368,39 @@ defmodule Quizzler do
   defp ask_questions([], score), do: {score, []}
 
   defp ask_questions([question | remaining_questions], score) do
+    # Display the current question
     IO.puts(question.question)
 
+    # Display the options for the current question with numbers
     Enum.with_index(question.options) |> Enum.each(fn {option, index} ->
       IO.puts("#{index + 1}. #{option}")
     end)
 
-    answer = IO.gets("Your answer (enter the number): ") |> String.trim()
+    # Prompt the user for their answer or the option to quit (by typing 'x')
+    answer = IO.gets("Your answer (enter the number) or type 'x' to quit: ") |> String.trim()
 
-    new_score =
-      if String.to_integer(answer) == question.correct_answer do
-        IO.puts("Correct!")
-        score + 1
-      else
-        IO.puts("Incorrect!")
-        IO.puts("The correct answer is: #{Enum.at(question.options, question.correct_answer - 1)}")
-        score
-      end
+    # Check if the user entered 'x' to quit the game
+    if answer == "x" do
+      # End the game and show the final score
+      IO.puts("Game over. Final score: #{score}")
+      {score, []} # Stop the recursion and terminate the game
+    else
+      # Process the user's answer
+      new_score =
+        if String.to_integer(answer) == question.correct_answer do
+          # If the answer is correct, increase the score by 1
+          IO.puts("Correct!")
+          score + 1
+        else
+          # If the answer is incorrect, just show the correct answer and keep the score
+          IO.puts("Incorrect!")
+          IO.puts("The correct answer is: #{Enum.at(question.options, question.correct_answer - 1)}")
+          score
+        end
 
-    ask_questions(remaining_questions, new_score)
+      # Recursively call the function to continue to the next question
+      ask_questions(remaining_questions, new_score)
+    end
   end
+
 end
