@@ -379,40 +379,48 @@ defmodule Quizzler do
   # Function to ask questions recursively
   defp ask_questions([], score), do: {score, []}
 
-  defp ask_questions([question | remaining_questions], score) do
-    # Display the current question
-    IO.puts(question.question)
+defp ask_questions([question | remaining_questions], score) do
+  # Display the current question
+  IO.puts(question.question)
 
-    # Display the options for the current question with numbers
-    Enum.with_index(question.options) |> Enum.each(fn {option, index} ->
-      IO.puts("#{index + 1}. #{option}")
-    end)
+  # Display the options for the current question with numbers
+  Enum.with_index(question.options) |> Enum.each(fn {option, index} ->
+    IO.puts("#{index + 1}. #{option}")
+  end)
 
-    # Prompt the user for their answer or the option to quit (by typing 'x')
-    answer = IO.gets("Your answer (enter the number) or type 'x' to quit: ") |> String.trim()
+  # Prompt the user for their answer or the option to quit (by typing 'x')
+  answer = IO.gets("Your answer (enter the number) or type 'x' to quit: ") |> String.trim()
 
-    # Check if the user entered 'x' to quit the game
-    if answer == "x" do
-      # End the game and show the final score
-      IO.puts("Game over. Final score: #{score}")
-      {score, []} # Stop the recursion and terminate the game
-    else
-      # Process the user's answer
-      new_score =
-        if String.to_integer(answer) == question.correct_answer do
-          # If the answer is correct, increase the score by 1
-          IO.puts("Correct!")
-          score + 1
-        else
-          # If the answer is incorrect, just show the correct answer and keep the score
-          IO.puts("Incorrect!")
-          IO.puts("The correct answer is: #{Enum.at(question.options, question.correct_answer - 1)}")
-          score
-        end
+  # Check if the user entered 'x' to quit the game
+  if answer == "x" do
+    # End the game and show the final score
+    IO.puts("Game over. Final score: #{score}")
+    {score, []} # Stop the recursion and terminate the game
+  else
+    # Check if the answer is a valid number
+    case Integer.parse(answer) do
+      {:ok, number} when number > 0 and number <= length(question.options) ->
+        # Process the user's answer if it's valid
+        new_score =
+          if number == question.correct_answer do
+            IO.puts("Correct!")
+            score + 1
+          else
+            IO.puts("Incorrect!")
+            IO.puts("The correct answer is: #{Enum.at(question.options, question.correct_answer - 1)}")
+            score
+          end
 
-      # Recursively call the function to continue to the next question
-      ask_questions(remaining_questions, new_score)
+        # Recursively call the function to continue to the next question
+        ask_questions(remaining_questions, new_score)
+
+      _ ->
+        # Handle invalid input
+        IO.puts("Invalid input, please enter a valid number or 'x' to quit.")
+        ask_questions([question | remaining_questions], score)  # Retry the same question
     end
   end
+end
+
 
 end
